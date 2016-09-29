@@ -2,11 +2,17 @@ class Response < ActiveRecord::Base
   validates :user_id, :answer_id, presence: true
   validates_uniqueness_of :user_id, scope: :answer_id
 
-  validate :not_duplicate_response
+  validate :not_duplicate_response, :not_author_response
 
   def not_duplicate_response
     if respondent_already_answered?
       errors[:duplicate_responses] << "not allowed!"
+    end
+  end
+
+  def not_author_response
+     if respondent_is_author?
+      errors[:author] << "cannot answer own poll!"
     end
   end
 
@@ -27,10 +33,14 @@ class Response < ActiveRecord::Base
   def sibling_responses
     self.question
         .responses
-        .where.not(id: @id)
+        .where.not(id: self.id)
   end
 
   def respondent_already_answered?
-    sibling_responses.where.not(user_id: @user_id).exists?
+    sibling_responses.where(user_id: self.user_id).exists?
+  end
+
+  def respondent_is_author?
+    self.question.poll.author.id == self.user_id
   end
 end
