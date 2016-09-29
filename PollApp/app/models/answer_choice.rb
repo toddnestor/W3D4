@@ -1,4 +1,6 @@
 class AnswerChoice < ActiveRecord::Base
+  validates :text, :question_id, presence: true
+
   belongs_to :question,
     primary_key: :id,
     foreign_key: :question_id,
