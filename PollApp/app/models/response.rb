@@ -30,6 +30,10 @@ class Response < ActiveRecord::Base
     through: :answer_choice,
     source: :question
 
+  has_one :poll,
+    through: :question,
+    source: :poll
+
   def sibling_responses
     self.question
         .responses
